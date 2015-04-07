@@ -1,6 +1,9 @@
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
 
+var player = new Player();
+var keyboard = new Keyboard();
+
 var startFrameMillis = Date.now();
 var endFrameMillis = Date.now();
 
@@ -29,8 +32,8 @@ function getDeltaTime()
 
 //-------------------- Don't modify anything above here
 
-var SCREEN_WIDTH = canvas.width;
-var SCREEN_HEIGHT = canvas.height;
+var width = canvas.width;
+var height = canvas.height;
 
 
 // some variables to calculate the Frames Per Second (FPS - this tells use
@@ -40,19 +43,16 @@ var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
 
-// load an image to draw
-var chuckNorris = document.createElement("img");
-chuckNorris.src = "hero.png";
 
 function run()
 {
 	ctx.fillStyle = "#ccc";		
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
+	player.update(deltaTime);
+	player.draw();
+	
 	var deltaTime = getDeltaTime();
-	
-	ctx.drawImage(chuckNorris, SCREEN_WIDTH/2 - chuckNorris.width/2, SCREEN_HEIGHT/2 - chuckNorris.height/2);
-	
 		
 	// update the frame counter 
 	fpsTime += deltaTime;
