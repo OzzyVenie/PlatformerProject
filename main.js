@@ -2,6 +2,7 @@ var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
 
 var player = new Player();
+var enemy = new Enemy();
 var keyboard = new Keyboard();
 
 var startFrameMillis = Date.now();
@@ -46,14 +47,17 @@ var fpsTime = 0;
 
 function run()
 {
+	var deltaTime = getDeltaTime();
+
 	ctx.fillStyle = "#ccc";		
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
 	player.update(deltaTime);
 	player.draw();
 	
-	var deltaTime = getDeltaTime();
-		
+	enemy.update(deltaTime);
+	enemy.draw();
+
 	// update the frame counter 
 	fpsTime += deltaTime;
 	fpsCount++;
