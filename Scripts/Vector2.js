@@ -7,12 +7,18 @@ var Vector2 = function()
 	this.y = 0;
 };
 
+Vector2.prototype.set = function(x, y)
+{
+	this.x = x;
+	this.y = y;
+}
+
 //FIND VECTOR LENGTH
 Vector2.prototype.length = function ()
 {
-	var len = math.sqrt(this.x*this.x + this.y*this.y);
+	var result = math.sqrt(this.x*this.x + this.y*this.y);
 	
-	return len;
+	return result;
 }
 
 //NORMALIZE THE VECTOR

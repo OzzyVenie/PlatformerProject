@@ -1,13 +1,13 @@
 var canvas = document.getElementById("gameCanvas");
 
-var Player = function()
+var Enemy = function()
 {
 	this.image = document.createElement("img");
 	
-	this.x = canvas.width/2;
-	this.y = canvas.height/2;
-	this.width = 165;
-	this.height = 125;
+	this.x = 0;
+	this.y = 0;
+	this.width = 200;
+	this.height = 130;
 	
 	this.velocityX = 0;
 	this.velocityY = 0;
@@ -15,13 +15,11 @@ var Player = function()
 	
 	this.rotation = 0;
 	
-	
-	
-	this.image.src = "hero.png";
+	this.image.src = "Images/enemy.png";
 };
 
 
-Player.prototype.update = function(deltaTime)
+Enemy.prototype.update = function(deltaTime)
 {
 
 	if(this.y <= 0 - (this.height / 2)){
@@ -37,39 +35,29 @@ Player.prototype.update = function(deltaTime)
 		this.x = 0 - (this.height / 2);
 	}
 
-	/*
-	if(keyboard.isKeyDown(keyboard.KEY_SPACE) )
-	{
-		this.rotation += deltaTime;
-	}
-	else
-	{
-		this.rotation -= deltaTime;
-	}
-	*/
 	
-	if(keyboard.isKeyDown(keyboard.KEY_W) )
+	if(keyboard.isKeyDown(keyboard.KEY_UP) )
 	{
 		this.y -= 5;
 	}
 	
-	if(keyboard.isKeyDown(keyboard.KEY_S) )
+	if(keyboard.isKeyDown(keyboard.KEY_DOWN) )
 	{
 		this.y += 5;
 	}
 	
-	if(keyboard.isKeyDown(keyboard.KEY_A) )
+	if(keyboard.isKeyDown(keyboard.KEY_LEFT) )
 	{
-		this.x -= 5;
+		this.x -= 2;
 	}
 	
-	if(keyboard.isKeyDown(keyboard.KEY_D) )
+	if(keyboard.isKeyDown(keyboard.KEY_RIGHT) )
 	{
-		this.x += 5;
+		this.x += 2;
 	}
-
 }
-Player.prototype.draw = function()
+
+Enemy.prototype.draw = function()
 {
 
 	ctx.save();
