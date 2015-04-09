@@ -28,6 +28,11 @@ function getDeltaTime()
 	return deltaTime;
 }
 
+var score = 0;
+var lives = 3;
+var heartImage = document.createElement("img")
+heartImage.src = "Images/heart.png";
+
 //-------------------- Don't modify anything above here
 
 var SCREEN_WIDTH = canvas.width;
@@ -194,12 +199,10 @@ var player = new Player();
 
 function run()
 {
-
-
+	var deltaTime = getDeltaTime();
+	
 	ctx.fillStyle = "#ccc";		
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	
-	var deltaTime = getDeltaTime();
 	
 	drawMap();
 	
@@ -210,7 +213,22 @@ function run()
 	ctx.rect(player.position.x, player.position.y, TILE, TILE);
 	ctx.stroke();
 	
-		
+	// score
+	ctx.fillStyle = "white";
+	ctx.font="32px Arial";
+	var scoreText = "Score: " + score;
+	ctx.fillText(scoreText, canvas.width - 170, 35);
+	
+	for(var i=0; i<lives; ++i)
+	{
+		ctx.drawImage(heartImage, 20 + ((heartImage.width+2)*i), 10);
+	}
+	
+	// draw the FPS
+	ctx.fillStyle = "#f00";
+	ctx.font="14px Arial";
+	ctx.fillText("FPS: " + fps, 5, 20, 100);
+	
 	// update the frame counter 
 	fpsTime += deltaTime;
 	fpsCount++;
@@ -219,12 +237,7 @@ function run()
 		fpsTime -= 1;
 		fps = fpsCount;
 		fpsCount = 0;
-	}		
-		
-	// draw the FPS
-	ctx.fillStyle = "#f00";
-	ctx.font="14px Arial";
-	ctx.fillText("FPS: " + fps, 5, 20, 100);
+	}	
 }
 
 

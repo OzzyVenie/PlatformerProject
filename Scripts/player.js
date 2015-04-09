@@ -3,43 +3,26 @@ var RIGHT = 1;
 var ANIM_IDLE_LEFT = 0;
 var ANIM_JUMP_LEFT = 1;
 var ANIM_WALK_LEFT = 2;
-var ANIM_SHOOT_LEFT = 3;
-var ANIM_CLIMB = 4;
 var ANIM_IDLE_RIGHT = 3;
 var ANIM_JUMP_RIGHT = 4;
 var ANIM_WALK_RIGHT = 5;
+var ANIM_CLIMB = 6;
+var ANIM_SHOOT_LEFT = 7;
 var ANIM_SHOOT_RIGHT = 8;
 var ANIM_MAX = 9;
 
-var Player = function()
+var Player = function() 
 {
-	this.sprite = new Sprite("./Images/ChuckNorris.png");
-	
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[0, 1, 2, 3, 4, 5, 6, 7]); //LEFT_IDLE = 0
-	
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[8, 9, 10, 11, 12]);//LEFT_JUMP = 1
-	
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]); //LEFT_WALK = 2 
-	
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[52, 53, 54, 55, 56, 57, 58, 59]); //RIGHT_IDLE = 3
-	
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[60, 61, 62, 63, 64]);//RIGHT_JUMP = 4
-	
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);//RIGHT_WALK = 5
-	
-	
-	
-	for(var i=0; i<6; i++)
-	{
-		this.sprite.setAnimationOffset(i, -55, -87);
-	}
-
+	this.sprite = new Sprite("Images/ChuckNorris.png");
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.10, [0, 1, 2, 3, 4, 5, 6, 7]);//idle left
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [8, 9, 10, 11, 12]);// LEFT_JUMP
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]);//LEFT_WALK
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.10, [52, 53, 54, 55, 56, 57, 58, 59]);//RIGHT IDLE
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [60, 61, 62, 63, 64]);//RIGHT JUMP
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);//RIGHT WALK
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 51]);//climb
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);//shoot left
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91]);//shoot right
 	
 	this.position = new Vector2();
 	this.position.set(100, 500);
@@ -50,6 +33,11 @@ var Player = function()
 	this.height = 136;
 	this.jumping = false;
 	this.falling = false;
+	
+	for(var i=0; i<9; i++)
+	{
+		this.sprite.setAnimationOffset(i, -this.width/2 + 16, -this.height/2 - 16);
+	}
 	
 	this.dierection = LEFT;
 	
@@ -75,7 +63,9 @@ Player.prototype.update = function(deltaTime)
 		left = true;
 		this.direction = LEFT;
 		if(this.sprite.currentAnimation != ANIM_WALK_LEFT && this.jumping == false && this.falling == false)
+		{	
 			this.sprite.setAnimation(ANIM_WALK_LEFT);
+		}
 	}
 
 	else if(keyboard.isKeyDown(keyboard.KEY_D) == true )
@@ -86,6 +76,20 @@ Player.prototype.update = function(deltaTime)
 		if(this.sprite.currentAnimation != ANIM_WALK_RIGHT && this.jumping == false && this.falling == false)
 			this.sprite.setAnimation(ANIM_WALK_RIGHT);
 	}
+	else if (keyboard.isKeyDown(keyboard.KEY_SPACE) == true)
+	{
+		if (this.direction == LEFT)
+		{
+			if(this.sprite.currentAnimation != ANIM_SHOOT_LEFT)
+			this.sprite.setAnimation(ANIM_SHOOT_LEFT);
+		}
+		else
+		{
+			if(this.sprite.currentAnimation != ANIM_SHOOT_RIGHT)
+			this.sprite.setAnimation(ANIM_SHOOT_RIGHT);
+		}
+	}
+	
 	else
 	{
 		if(this.jumping == false && this.falling == false)
@@ -134,6 +138,7 @@ Player.prototype.update = function(deltaTime)
 		else
 			this.sprite.setAnimation(ANIM_JUMP_RIGHT)
 	}
+	
 	
 
 	
