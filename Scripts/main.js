@@ -28,8 +28,7 @@ function getDeltaTime()
 	return deltaTime;
 }
 
-var score = 0;
-var lives = 3;
+var hearts = [];
 var heartImage = document.createElement("img")
 heartImage.src = "Images/heart.png";
 
@@ -64,7 +63,6 @@ var LAYER_LADDERS = 2;
 
 var tileset = document.createElement("img");
 tileset.src = "Images/tileset.png";
-
 
 var cells = [];
 
@@ -104,6 +102,25 @@ function initializeCollision()
 			}
 		}
 	}
+	
+	var bgMusic = new Howl({
+			urls : ["Audio/background.ogg"],
+			loop : true,
+			buffer : true,
+			volume : 0.5,
+		});
+	bgMusic.play();
+	
+	sfxFire = new Howl(
+	{
+		urls: ["Audio/fireEffect.ogg"],
+		buffer: true,
+		volume: 1,
+		onend: function() 
+		{
+			isSfxPlaying = false;
+		}
+	});
 }
 
 function tileToPixel(tile_coord)
@@ -142,53 +159,49 @@ function cellAtPixelCoord(layer, x, y)
 	return cellAtTileCoord(layer, tx, ty);
 }
 
-
 function drawMap()
 {
-	if (typeof(level1) === "undefined" )
+	var startX = -1;
+	var maxTiles = Math.floor(SCREEN_WIDTH / TILE) + 2;
+	var tileX = pixelToTile(player.position.x);
+	var offsetX = TILE + Math.floor(player.position.x%TILE);
+
+	startX = tileX - Math.floor(maxTiles / 2);
+	
+	if(startX < -1)
 	{
-		alert("ADD 'level1' TO JSON FILE");
+		startX = 0;
+		offsetX = 0;
 	}
-
-
-	//this loops over all the layers in our tilemap
-	for (var layerIdx = 0 ; layerIdx < LAYER_COUNT ; ++layerIdx )
+	
+	if(startX > MAP.tw - maxTiles)
 	{
-		//render everything in the current layer (layerIdx)
-		//look at every tile in the layer in turn, and render them.
-		
-		var idx = 0;
-		//look at each row
-		for (var y = 0 ; y < level1.layers[layerIdx].height ; ++y)
+		startX = MAP.tw - maxTiles + 1;
+		offsetX = TILE;
+	}
+	
+	worldOffsetX = startX * TILE + offsetX;
+
+	for( var layerIdx=0; layerIdx < LAYER_COUNT; layerIdx++ )
+	{
+		for( var y = 0; y < level1.layers[layerIdx].height; y++ )
 		{
-			//look at each tile in the row
-			for ( var x = 0 ; x < level1.layers[layerIdx].width ; ++x)
+		var idx = y * level1.layers[layerIdx].width + startX;
+		for( var x = startX; x < startX + maxTiles; x++ )
 			{
-				var tileIndex = level1.layers[layerIdx].data[idx] - 1;
-				
-				//if there's actually a tile here
-				if ( tileIndex != -1 )
+			if( level1.layers[layerIdx].data[idx] != 0 )
 				{
-					//draw the current tile at the current location
-					
-					//where in the tilemap is the current tile?
-					//where in the world should the current tile go?
-					
-					//source x in the tileset
-					var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) * 
-												(TILESET_TILE + TILESET_SPACING);
-					//source y in the tileset
-					var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_X)) * 
-												(TILESET_TILE + TILESET_SPACING);
-					//destination x on the canvas
-					var dx = x * TILE;
-					//destination y on the canvas
-					var dy = (y-1) * TILE;
-					
-					ctx.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE, 
-											   dx, dy, TILESET_TILE, TILESET_TILE);
+					// the tiles in the Tiled map are base 1 (meaning a value of 0 means no tile),
+					// so subtract one from the tileset id to get the correct tile
+					var tileIndex = level1.layers[layerIdx].data[idx] - 1;
+					var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) *
+					(TILESET_TILE + TILESET_SPACING);
+					var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_Y)) *
+					(TILESET_TILE + TILESET_SPACING);
+					ctx.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE,
+					(x-startX)*TILE - offsetX, (y-1)*TILE, TILESET_TILE, TILESET_TILE);
 				}
-				++idx;
+			idx++;
 			}
 		}
 	}
@@ -196,38 +209,55 @@ function drawMap()
 
 var keyboard = new Keyboard();
 var player = new Player();
+var enemy = new Enemy();
+var bullets = new Bullet();
+
+var timer = 0;
+
 
 function run()
 {
 	var deltaTime = getDeltaTime();
 	
+	timer += deltaTime;
+	
+	if (deltaTime > 0.03)
+	{
+		deltaTime = 0.03;
+	}
+
 	ctx.fillStyle = "#ccc";		
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
 	drawMap();
 	
-	player.update(deltaTime);
-	player.draw();
-	
-	ctx.beginPath();
-	ctx.rect(player.position.x, player.position.y, TILE, TILE);
+	ctx.fillStyle = "black";
+	ctx.fillRect(0,0,390,62);
 	ctx.stroke();
+	
+	if ( player.health <= 0)
+	{
+		player.position.set(player.position.set)
+		player.health = 100;
+	}
+	
+	//enemy.update(deltaTime);
+	//enemy.draw();
+	
+	//ctx.beginPath();
+	//ctx.rect(player.position.x, player.position.y, TILE, TILE);
+	//ctx.stroke();
 	
 	// score
 	ctx.fillStyle = "white";
-	ctx.font="32px Arial";
-	var scoreText = "Score: " + score;
-	ctx.fillText(scoreText, canvas.width - 170, 35);
+	ctx.font="30px Cooper Std Black";
+	ctx.fillText("Score : " + player.score, 200, 40);
 	
-	for(var i=0; i<lives; ++i)
+	
+	for(var i=0; i<player.lives; ++i)
 	{
 		ctx.drawImage(heartImage, 20 + ((heartImage.width+2)*i), 10);
 	}
-	
-	// draw the FPS
-	ctx.fillStyle = "#f00";
-	ctx.font="14px Arial";
-	ctx.fillText("FPS: " + fps, 5, 20, 100);
 	
 	// update the frame counter 
 	fpsTime += deltaTime;
@@ -238,6 +268,62 @@ function run()
 		fps = fpsCount;
 		fpsCount = 0;
 	}	
+	
+	// draw the FPS
+	ctx.fillStyle = "red";
+	ctx.font="20px Cooper Std Black";
+	ctx.fillText("FPS : " + fps,  892, 30);
+	
+	ctx.fillStyle = "red";
+	ctx.font = "20px Cooper Std Black";
+	ctx.fillText("Time : " + Math.floor(timer), 880, 50);
+	
+	if (!player.isDead && !enemy.isDead)
+	{
+		player.update(deltaTime);
+		player.draw();
+		
+		enemy.update(deltaTime);
+		enemy.draw();
+	}
+	else
+	{
+		var endGame = "Game over!";
+		ctx.fillStyle = "white";
+		ctx.font="50px Cooper Std Black";
+		ctx.fillText(endGame, (canvas.width / 2) - ctx.measureText(endGame).width / 2, canvas.height / 2);
+	}
+	
+	var hit=false;
+	for(var i=0; i<bullets.length; i++)
+	{
+		bullets[i].update(deltaTime);
+		if( bullets[i].position.x - worldOffsetX < 0 ||
+		bullets[i].position.x - worldOffsetX > SCREEN_WIDTH)
+		{
+			hit = true;
+		}
+			for(var j=0; j<enemies.length; j++)
+			{
+				if(intersects( bullets[i].position.x, bullets[i].position.y, TILE, TILE,
+				enemies[j].position.x, enemies[j].position.y, TILE, TILE) == true)
+				{
+					// kill both the bullet and the enemy
+					enemies.splice(j, 1);
+					hit = true;
+					// increment the player score
+					score += 1;
+					break;
+				}
+			}
+		
+		if(hit == true)
+		{
+			bullets.splice(i, 1);
+			break;
+		}
+	}
+	
 }
 
 

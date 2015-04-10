@@ -121,18 +121,9 @@ Sprite.prototype.update = function(dt) {
 	}
 };
 
-Sprite.prototype.draw = function(c, x, y) {
-	// img	Specifies the image, canvas, or video element to use	 
-	// sx	Optional. The x coordinate where to start clipping	
-	// sy	Optional. The y coordinate where to start clipping	
-	// swidth	Optional. The width of the clipped image	
-	// sheight	Optional. The height of the clipped image	
-	// x	The x coordinate where to place the image on the canvas	
-	// y	The y coordinate where to place the image on the canvas	
-	// width	Optional. The width of the image to use (stretch or reduce the image)	
-	// height	Optional. The height of the image to use (stretch or reduce the image)
-		
-	c.drawImage(this.image, 
+Sprite.prototype.draw = function(c, x, y)
+{	
+	ctx.drawImage(this.image, 
 			this.animations[this.currentAnimation][this.currentFrame].x,
 			this.animations[this.currentAnimation][this.currentFrame].y,
 			this.animations[this.currentAnimation][this.currentFrame].width,
@@ -141,11 +132,3 @@ Sprite.prototype.draw = function(c, x, y) {
 			this.animations[this.currentAnimation][this.currentFrame].width,
 			this.animations[this.currentAnimation][this.currentFrame].height);
 };
-
-
-
-
-
-
-
-
